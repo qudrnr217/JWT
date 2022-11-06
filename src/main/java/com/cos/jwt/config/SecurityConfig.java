@@ -25,7 +25,7 @@ public class SecurityConfig{
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
+        AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
         http.addFilterBefore(new MyFilter3(), WebAsyncManagerIntegrationFilter.class); //spring security filter chain의 BasicAuthenticationFilter 필터 전에 넣으라는 뜻임. 일반 필터이기때문에 security filter랑 같이 안되기 때문에
         //FilterConfig에 등록한것보다 무조건 security filter가 먼저 실행됨. after를 하더라도
         //JWT설정은 security filter이전에 실행되어야 하므로 before을 사용
@@ -36,7 +36,7 @@ public class SecurityConfig{
                 .formLogin().disable() //form tag로그인 방식도 안쓴다.
                 .httpBasic().disable() //httpBasic은 headers에 Authorization: ID,PW를 담아서 요청하는 방식이어서 확장성은 좋지만 PW가 노출이 되기 때문에중간에 노출이 될 수 있음. 노출이 안되게하려면
                 //https 서버를 써야하는데 https를 사용하면 id,pw가 암호화 돼서 날라간다. 우리가 쓸 방법은 Authorization에 token을 넣어 사용할 예정 토큰은 노출이되어도 괜춘.
-                .addFilter(new JwtAuthenticationFilter(AuthenticationManager())) //AuthenticationManager
+                .addFilter(new JwtAuthenticationFilter(authenticationManager)) //AuthenticationManager
                 .authorizeRequests()
                 .antMatchers("/api/v1/user/**")
                 .access("hasAnyRole('ROLE_USER','ROLE_MANAGER','ROLE_ADMIN')")
