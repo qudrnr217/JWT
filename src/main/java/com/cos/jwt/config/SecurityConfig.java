@@ -4,6 +4,7 @@ import com.cos.jwt.config.jwt.JwtAuthenticationFilter;
 import com.cos.jwt.config.jwt.JwtAuthorizationFilter;
 import com.cos.jwt.filter.MyFilter1;
 import com.cos.jwt.filter.MyFilter3;
+import com.cos.jwt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,7 @@ import org.springframework.web.filter.CorsFilter;
 public class SecurityConfig{
 
     private final CorsFilter corsFilter;
+    private final UserRepository userRepository;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder(){
@@ -45,7 +47,7 @@ public class SecurityConfig{
                 .httpBasic().disable() //httpBasic은 headers에 Authorization: ID,PW를 담아서 요청하는 방식이어서 확장성은 좋지만 PW가 노출이 되기 때문에중간에 노출이 될 수 있음. 노출이 안되게하려면
                 //https 서버를 써야하는데 https를 사용하면 id,pw가 암호화 돼서 날라간다. 우리가 쓸 방법은 Authorization에 token을 넣어 사용할 예정 토큰은 노출이되어도 괜춘.
                 .addFilter(new JwtAuthenticationFilter(authenticationManager)) //AuthenticationManager
-                .addFilter(new JwtAuthorizationFilter(authenticationManager))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager,userRepository))
                 .authorizeRequests()
                 .antMatchers("/api/v1/user/**")
                 .access("hasAnyRole('ROLE_USER','ROLE_MANAGER','ROLE_ADMIN')")

@@ -94,10 +94,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         //RSA방식은 아니고 Hash암호방식
         String jwtToken = JWT.create()
                 .withSubject("cos토큰") //크게 의미없음.
-                .withExpiresAt(new Date(System.currentTimeMillis()+(60000*10)))//현재시간 + 60000*10 = 10분
+                .withExpiresAt(new Date(System.currentTimeMillis()+JwtProperties.EXPIRATION_TIME))//현재시간 + 60000*10 = 10분
                 .withClaim("id",principalDetails.getUser().getUsername()) //witClaim은 비공개 클레임인데 넣고싶은 키벨류를 막넣으면됨.
                 .withClaim("username",principalDetails.getUser().getUsername()) //ID와 username정도만 토큰에 담아준다.
-                .sign(Algorithm.HMAC512("cos")); //시크릿값을 가지고 있어야함.
+                .sign(Algorithm.HMAC512(JwtProperties.SECRET)); //시크릿값을 가지고 있어야함.
 
         response.addHeader("Authorization","Bearer "+jwtToken);
 
